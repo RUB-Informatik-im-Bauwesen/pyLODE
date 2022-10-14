@@ -40,15 +40,16 @@ from rdflib.namespace import (
     RDFS,
     SDO,
     SKOS,
-    VANN
+    VANN,
+    SH
 )
 
 try:
     from .rdf_elements import AGENT_PROPS, ONTDOC, ONT_TYPES, \
-        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES
+        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS
 except ImportError:
     from rdf_elements import AGENT_PROPS, ONTDOC, ONT_TYPES, \
-        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES
+        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS
 
 RDF_FOLDER = Path(__file__).parent / "rdf"
 
@@ -112,7 +113,7 @@ def make_title_from_iri(iri: URIRef):
         iri = str(iri)
     # can't tolerate any URI faults so return None if anything is wrong
 
-    # URIs with no path segments or ending in slash
+    # URIs with no path segments or ending in slaSH
     segments = iri.split("/")
     if len(segments[-1]) < 1:
         return None
@@ -121,7 +122,7 @@ def make_title_from_iri(iri: URIRef):
     if len(segments) < 4:
         return None
 
-    # URIs ending in hash
+    # URIs ending in haSH
     if segments[-1].endswith("#"):
         return None
 
@@ -169,10 +170,10 @@ def generate_fid(title_: Union[Literal, None], iri: URIRef, fids: dict):
         # this fid is already present
         # so generate a new one from the URI instead
 
-    # split URI for last slash segment
+    # split URI for last slaSH segment
     segments = s_iri.split("/")
 
-    # return None for empty string - URI ends in slash
+    # return None for empty string - URI ends in slaSH
     if len(segments[-1]) < 1:
         return None
 
@@ -181,8 +182,8 @@ def generate_fid(title_: Union[Literal, None], iri: URIRef, fids: dict):
     if len(segments) < 4:
         return None
 
-    # split out hash URIs
-    # remove any training hashes
+    # split out haSH URIs
+    # remove any training haSHes
     if segments[-1].endswith("#"):
         return None
 
@@ -524,7 +525,7 @@ def rdf_obj_html(
                                         <path d="M72,36 C72,55.884375 55.884375,72 36,72 C16.115625,72 0,55.884375 0,36 C0,16.115625 16.115625,0 36,0 C55.884375,0 72,16.115625 72,36 Z" id="Path" fill="#A6CE39"></path>
                                         <g id="Group" transform="translate(18.868966, 12.910345)" fill="#FFFFFF">
                                             <polygon id="Path" points="5.03734929 39.1250878 0.695429861 39.1250878 0.695429861 9.14431787 5.03734929 9.14431787 5.03734929 22.6930505 5.03734929 39.1250878"></polygon>
-                                            <path d="M11.409257,9.14431787 L23.1380784,9.14431787 C34.303014,9.14431787 39.2088191,17.0664074 39.2088191,24.1486995 C39.2088191,31.846843 33.1470485,39.1530811 23.1944669,39.1530811 L11.409257,39.1530811 L11.409257,9.14431787 Z M15.7511765,35.2620194 L22.6587756,35.2620194 C32.49858,35.2620194 34.7541226,27.8438084 34.7541226,24.1486995 C34.7541226,18.1301509 30.8915059,13.0353795 22.4332213,13.0353795 L15.7511765,13.0353795 L15.7511765,35.2620194 Z" id="Shape"></path>
+                                            <path d="M11.409257,9.14431787 L23.1380784,9.14431787 C34.303014,9.14431787 39.2088191,17.0664074 39.2088191,24.1486995 C39.2088191,31.846843 33.1470485,39.1530811 23.1944669,39.1530811 L11.409257,39.1530811 L11.409257,9.14431787 Z M15.7511765,35.2620194 L22.6587756,35.2620194 C32.49858,35.2620194 34.7541226,27.8438084 34.7541226,24.1486995 C34.7541226,18.1301509 30.8915059,13.0353795 22.4332213,13.0353795 L15.7511765,13.0353795 L15.7511765,35.2620194 Z" id="SHape"></path>
                                             <path d="M5.71401206,2.90182329 C5.71401206,4.441452 4.44526937,5.72914146 2.86638958,5.72914146 C1.28750978,5.72914146 0.0187670918,4.441452 0.0187670918,2.90182329 C0.0187670918,1.33420133 1.28750978,0.0745051096 2.86638958,0.0745051096 C4.44526937,0.0745051096 5.71401206,1.36219458 5.71401206,2.90182329 Z" id="Path"></path>
                                         </g>
                                     </g>
@@ -592,6 +593,7 @@ def rdf_obj_html(
             for px, o in ont__.predicate_objects(obj__):
                 if px != RDF.type:
                     if px == OWL.onProperty:
+
                         prop = _hyperlink_html(
                             ont__,
                             back_onts_,
@@ -839,6 +841,7 @@ def section_html(
                 (s_, RDF.type, OWL.DatatypeProperty),
                 (s_, RDF.type, OWL.AnnotationProperty),
                 (s_, RDF.type, OWL.FunctionalProperty),
+                (s_, RDF.type, SH.NodeShape),
             ]
             if any(x in ont for x in specialised_props):
                 continue
@@ -892,3 +895,7 @@ def de_space_html(html):
     # return re.sub(" +", " ", s)
     s = re.sub(r">\s+<", "><", html)
     return re.sub(r"\s+", " ", s)
+
+# TODO:
+# Fix Hyperlinks for OP and Shapes with same name
+# Fix Rules

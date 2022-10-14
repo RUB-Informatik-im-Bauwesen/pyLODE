@@ -7,6 +7,7 @@ from rdflib.namespace import (
     SDO,
     SKOS,
     VANN,
+    SH,
 )
 
 ONTDOC = Namespace("https://w3id.org/profile/ontdoc/")
@@ -74,6 +75,9 @@ PROP_PROPS = [
     SDO.domainIncludes,
     RDFS.range,
     SDO.rangeIncludes,
+    SH.rule,
+    SH.targetClass,
+    RDFS.seeAlso,
 ]
 
 # properties for Agents
@@ -101,10 +105,20 @@ RESTRICTION_PROPS = [
     OWL.maxQualifiedCardinality,
 ]
 
+SHACL_PROPS = [
+    RDFS.comment,
+    RDFS.label,
+    RDFS.seeAlso,
+    RDFS.subPropertyOf,
+    OWL.inverseOf,
+    SH.rule,
+    SH.targetClass,
+    ]
+
 # all known properties
 PROPS = set(
     ONT_PROPS + CLASS_PROPS + PROP_PROPS +
-    AGENT_PROPS + RESTRICTION_PROPS)
+    AGENT_PROPS + RESTRICTION_PROPS + SHACL_PROPS)
 
 ONT_TYPES = {
     OWL.Class: ("c", "OWL/RDFS Class"),
@@ -115,6 +129,7 @@ ONT_TYPES = {
     OWL.FunctionalProperty: ("fp", "OWL Functional Property"),
     OWL.InverseFunctionalProperty: ("ifp", "OWL Inverse Functional Property"),
     OWL.NamedIndividual: ("ni", "OWL Named Individual"),
+    SH.NodeShape: ("ns", "SHACL Node Shape"),
 }
 
 RESTRICTION_TYPES = [
@@ -128,5 +143,7 @@ RESTRICTION_TYPES = [
     OWL.someValuesFrom,
     OWL.hasValue,
 ]
+
+
 
 OWL_SET_TYPES = [OWL.unionOf, OWL.intersectionOf]

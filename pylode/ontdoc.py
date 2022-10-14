@@ -44,6 +44,7 @@ from rdflib.namespace import (
     RDFS,
     SDO,
     SKOS,
+    SH,
 )
 
 try:
@@ -58,7 +59,7 @@ try:
     )
 
     from .rdf_elements import ONTDOC, AGENT_PROPS, \
-        ONT_PROPS, CLASS_PROPS, PROP_PROPS
+        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_PROPS
 
     from .version import __version__
 except ImportError:
@@ -73,7 +74,7 @@ except ImportError:
     )
 
     from rdf_elements import ONTDOC, AGENT_PROPS, \
-        ONT_PROPS, CLASS_PROPS, PROP_PROPS
+        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_PROPS
 
     from version import __version__
 
@@ -576,6 +577,14 @@ class OntDoc:
                                 title="OWL Named Individual"
                             ))
                             td("Named Individuals")
+                    if self.toc.get("shacl") is not None:
+                        with tr():
+                            td(sup(
+                                "ni",
+                                _class="sup-ni",
+                                title="SHACL Properties"
+                            ))
+                            td("SHACL Properties")
 
     def _make_namespaces(self):
         # only get namespaces used in ont
@@ -692,6 +701,18 @@ class OntDoc:
                             ))
                             with ul(_class="second"):
                                 for c in self.toc["functionalproperties"]:
+                                    li(a(c[1], href=c[0]))
+                    if (
+                        self.toc.get("shacl") is not None
+                        and len(self.toc["shacl"]) > 0
+                    ):
+                        with li():
+                            h4(a(
+                                "Node Shapes",
+                                href="#shacl"
+                            ))
+                            with ul(_class="second"):
+                                for c in self.toc["shacl"]:
                                     li(a(c[1], href=c[0]))
 
                     with li():
