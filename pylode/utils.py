@@ -4,11 +4,15 @@ import re
 from collections import defaultdict
 from itertools import chain
 from pathlib import Path
+import string
+from turtle import width
 from typing import Optional, List, Tuple, Union, cast
 
 import markdown
+import rdflib
 from dominate.tags import (
     a,
+    b,
     span,
     br,
     sup,
@@ -18,6 +22,8 @@ from dominate.tags import (
     ul,
     li,
     em,
+    details,
+    summary,
     code,
     table,
     h3,
@@ -46,10 +52,10 @@ from rdflib.namespace import (
 
 try:
     from .rdf_elements import AGENT_PROPS, ONTDOC, ONT_TYPES, \
-        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS
+        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS, SHACL_RULE_PROPS
 except ImportError:
     from rdf_elements import AGENT_PROPS, ONTDOC, ONT_TYPES, \
-        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS
+        OWL_SET_TYPES, PROPS, RESTRICTION_TYPES, SHACL_PROPS, SHACL_RULE_PROPS
 
 RDF_FOLDER = Path(__file__).parent / "rdf"
 
@@ -65,6 +71,8 @@ def check_all_props_are_known():
             print(f"Unknown property: {prop}")
             print(f'Estimating title as "{make_title_from_iri(prop)}"')
             print()
+        else:
+            print(f"Unknown property: {prop}")
 
 
 def get_ns(ont: Graph) -> Tuple[str, str]:
@@ -408,7 +416,7 @@ def rdf_obj_html(
                     OWL.DatatypeProperty,
                     OWL.AnnotationProperty,
                     OWL.FunctionalProperty,
-                    RDF.Property,
+                    RDF.Property
                 ]
 
                 this_objects_types = []
@@ -584,7 +592,57 @@ def rdf_obj_html(
                 if affiliation is not None:
                     sp.appendChild(_affiliation_html(ont__, affiliation))
             return sp
+        def _shSparqlRule_html(ont__, obj__, ns__):
+            prop = None
+            value = None
+            ruleTable = table()
+            
 
+            for px, o in ont__.predicate_objects(obj__):
+                tableRow = tr();
+                ruleTable.appendChild(tableRow);
+
+                if(px==SH.construct):              
+                 prop = _hyperlink_html(
+                        ont__,
+                        back_onts_,
+                        ns__,
+                        px,
+                        fids_
+                 )
+                 
+                 value  = details(code(o)).appendChild(summary("SPARQL"));
+                elif(px==RDF.type):
+                    prop = _hyperlink_html(
+                        ont__,
+                        back_onts_,
+                        ns__,
+                        px,
+                        fids_
+                  )
+                    value  = _hyperlink_html(
+                        ont__,
+                        back_onts_,
+                        ns__,
+                        o,
+                        fids_
+                  )
+                elif(px==DCTERMS.title):
+                   continue;
+                elif(px==DCTERMS.description):
+                   continue;
+                else:
+                  prop = _hyperlink_html(
+                        ont__,
+                        back_onts_,
+                        ns__,
+                        px,
+                        fids_
+                  )
+                  value  = str(o);  
+                tableRow.appendChild(td(prop,style="width:10%;padding:3px;"));
+                tableRow.appendChild(td(value,style="padding:10px;"));       
+            return span(ruleTable) if ruleTable is not None else "None"
         def _restriction_html(ont__, obj__, ns__):
             prop = None
             card = None
@@ -698,6 +756,8 @@ def rdf_obj_html(
                 return _agent_html(ont__, obj__)
             elif (obj__, RDF.type, OWL.Restriction) in ont__:
                 return _restriction_html(ont__, obj__, ns__)
+            elif (obj__, RDF.type, SH.SPARQLRule) in ont__:
+                return _shSparqlRule_html(ont__, obj__, ns__)
             else:  # (obj, RDF.type, OWL.Class) in ont:  # Set Class
                 return _setclass_html(ont__, obj__, back_onts__, ns__, fids__)
 
@@ -744,13 +804,14 @@ def prop_obj_pair_html(
 ):
     """Makes an HTML Definition list dt & dd pair or a Table tr, th & td set,
     for a given RDF property & resource pair"""
+
     prop = a(
-        str(property_title).title(),
-        title=str(property_description).rstrip(".") +
-        ". Defined in " + str(ont_title),
-        _class="hover_property",
-        href=str(prop_iri),
-    )
+                str(property_title).title(),
+                title=str(property_description).rstrip(".") +
+                ". Defined in " + str(ont_title),
+                _class="hover_property",
+                href=str(prop_iri),
+    )        
     o = rdf_obj_html(ont, back_onts, ns, obj, fids, rdf_type=obj_type, prop=prop_iri)
 
     if table_or_dl == "table":
@@ -842,6 +903,8 @@ def section_html(
                 (s_, RDF.type, OWL.AnnotationProperty),
                 (s_, RDF.type, OWL.FunctionalProperty),
                 (s_, RDF.type, SH.NodeShape),
+                (s_, RDF.type, SH.PropertyShape),
+                (s_, RDF.type, SH.SPARQLRule),
             ]
             if any(x in ont for x in specialised_props):
                 continue

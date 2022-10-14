@@ -59,7 +59,7 @@ try:
     )
 
     from .rdf_elements import ONTDOC, AGENT_PROPS, \
-        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_PROPS
+        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_RULE_PROPS
 
     from .version import __version__
 except ImportError:
@@ -74,7 +74,7 @@ except ImportError:
     )
 
     from rdf_elements import ONTDOC, AGENT_PROPS, \
-        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_PROPS
+        ONT_PROPS, CLASS_PROPS, PROP_PROPS, SHACL_RULE_PROPS
 
     from version import __version__
 

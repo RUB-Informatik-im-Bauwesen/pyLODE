@@ -76,8 +76,9 @@ PROP_PROPS = [
     RDFS.range,
     SDO.rangeIncludes,
     SH.rule,
+    SH.property,
     SH.targetClass,
-    RDFS.seeAlso,
+    RDFS.seeAlso
 ]
 
 # properties for Agents
@@ -112,7 +113,23 @@ SHACL_PROPS = [
     RDFS.subPropertyOf,
     OWL.inverseOf,
     SH.rule,
+    SH.SPARQLRule,
     SH.targetClass,
+    SH.property, 
+    RDF.type
+    ]
+
+SHACL_RULE_PROPS = [
+    RDFS.comment,
+    RDFS.label,
+    RDFS.seeAlso,
+    RDFS.subPropertyOf,
+    OWL.inverseOf,
+    SH.rule,
+    SH.targetClass,
+    SH.property, 
+    RDF.type,
+    SH.construct
     ]
 
 # all known properties
@@ -129,7 +146,7 @@ ONT_TYPES = {
     OWL.FunctionalProperty: ("fp", "OWL Functional Property"),
     OWL.InverseFunctionalProperty: ("ifp", "OWL Inverse Functional Property"),
     OWL.NamedIndividual: ("ni", "OWL Named Individual"),
-    SH.NodeShape: ("ns", "SHACL Node Shape"),
+    SH.NodeShape: ("sh", "SHACL Node Shape"),
 }
 
 RESTRICTION_TYPES = [
